@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pyeonpyeon/screen/component/ExpiredCalendar.dart';
+import 'package:pyeonpyeon/screen/component/Notice.dart';
 
 class StoreDetailScreen extends StatefulWidget {
-
   StoreDetailScreen(this.storeDoc);
 
   final DocumentSnapshot storeDoc;
@@ -13,8 +13,6 @@ class StoreDetailScreen extends StatefulWidget {
 }
 
 class _StoreDetailScreenState extends State<StoreDetailScreen> {
-
-
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -26,27 +24,20 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.storeDoc.data()['name']),),
-      body: [ExpiredCalendar(widget.storeDoc),
-        Text(
-          'Index 1: Business',
-        ),
-        Text(
-          'Index 2: School',
-        ),].elementAt(_selectedIndex),
+      appBar: AppBar(
+        title: Text(widget.storeDoc.data()['name']),
+      ),
+      body: [ExpiredCalendar(widget.storeDoc), Notice(widget.storeDoc)]
+          .elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.calendar_today),
+            label: 'Calendar',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Business',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: 'School',
+            icon: Icon(Icons.notifications),
+            label: 'Notice',
           ),
         ],
         currentIndex: _selectedIndex,

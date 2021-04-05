@@ -15,6 +15,7 @@ void main() {
   initializeDateFormatting();
   runApp(MyApp());
 }
+Color mainColor = Color.fromRGBO(96, 172, 188, 1);
 
 CollectionReference userRef = FirebaseFirestore.instance.collection("users");
 class MyApp extends StatelessWidget {
@@ -31,7 +32,14 @@ class MyApp extends StatelessWidget {
           }
           if (snapshot.connectionState == ConnectionState.done) {
             return MaterialApp(
+                debugShowCheckedModeBanner: false,
                 title: 'PyeonPyeon',
+                theme: ThemeData(
+                  fontFamily: 'NotoSans',
+                  primarySwatch: Colors.blue,
+                  primaryColor: mainColor,
+                  accentColor: mainColor
+                ),
                 home : MultiProvider(
                     providers: [
                       ChangeNotifierProvider<AuthProvider>(

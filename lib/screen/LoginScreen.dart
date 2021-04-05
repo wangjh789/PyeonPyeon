@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pyeonpyeon/main.dart';
 import 'package:pyeonpyeon/provider/AuthProvider.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
+
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -13,42 +15,46 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   AuthProvider _auth;
 
-  Future<void> signIn()async{
-    await _auth.googleSingIn().then((User user)async{
-      if(user != null){
+  Future<void> signIn() async {
+    await _auth.googleSingIn().then((User user) async {
+      if (user != null) {
         DocumentSnapshot userDoc = await userRef.doc(user.uid).get();
-        if(!userDoc.exists){
+        if (!userDoc.exists) {
           await userRef.doc(user.uid).set({
-            "uuid" : user.uid,
-            "email" : user.email,
-            "name" : user.displayName,
-            "storeRefs" : [],
-            "registerAt" : Timestamp.now(),
+            "uuid": user.uid,
+            "email": user.email,
+            "name": user.displayName,
+            "storeRefs": [],
+            "registerAt": Timestamp.now(),
           });
         }
       }
-    }).catchError((e){
+    }).catchError((e) {
       print(e.toString());
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    _auth = Provider.of<AuthProvider>(context,listen: false);
+    _auth = Provider.of<AuthProvider>(context, listen: false);
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Login Screen"),
-      ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Center(
-              child: ElevatedButton(
-            child: Text("Google Login"),
-            onPressed: () async {
+          Image(image: AssetImage('assets/logo/logo_transparent.png')),
+          SignInButton(
+            Buttons.Google,
+            elevation: 1,
+            onPressed: ()async{
               await signIn();
             },
-          )),
-
+          )
         ],
       ),
     );

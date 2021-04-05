@@ -26,7 +26,7 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(widget.storeDoc.data()['name']),
+        title: Text(widget.storeDoc.data()['name'],style: TextStyle(color: Colors.white),),
       ),
       body: [ExpiredCalendar(widget.storeDoc), Notice(widget.storeDoc)]
           .elementAt(_selectedIndex),

@@ -41,7 +41,8 @@ class _StoreListScreenState extends State<StoreListScreen> {
     _auth = Provider.of<AuthProvider>(context, listen: false);
     return Scaffold(
         appBar: AppBar(
-          title: Text("PyeonPyeon"),
+          centerTitle: true,
+          title: Text("PyeonPyeon",style: TextStyle(color: Colors.white),),
           actions: [
             IconButton(
               icon: Icon(Icons.power_settings_new),
@@ -95,7 +96,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
                               Text(
                                 storeList[index].data()['name'],
                                 style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 20),
+                                    fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 storeList[index].id,

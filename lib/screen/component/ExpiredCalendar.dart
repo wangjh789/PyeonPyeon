@@ -84,6 +84,58 @@ class _ExpiredCalendarState extends State<ExpiredCalendar>
     print('CALLBACK: _onCalendarCreated');
   }
 
+  Future<void> _deleteImage(String imgUrl) async {
+    DateTime targetDate;
+    _events.entries.forEach((element) {
+      if (element.value.contains(imgUrl)) {
+        targetDate = element.key;
+      }
+    });
+    _selectedEvents.remove(imgUrl);
+    String imgName = imgUrl.toString().split('?')[0].split("%2F")[2];
+    Reference storageReference =
+        _firebaseStorage.ref().child("${widget.storeDoc.id}/expired/$imgName");
+    await storageReference.delete();
+    await widget.storeDoc.reference
+        .collection("expired")
+        .doc(targetDate.toString())
+        .update({
+      "photoUrls": FieldValue.arrayRemove([imgUrl])
+    });
+  }
+
+  Future<void> _showDelete(BuildContext context, String imageUrl) {
+    setState(() {
+      loading = true;
+    });
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                content: Text("사진을 삭제하시겠습니까?"),
+                actions: [
+                  TextButton(
+                    child: Text("예"),
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      await _deleteImage(imageUrl);
+                    },
+                  ),
+                  TextButton(
+                    child: Text("아니오"),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  )
+                ],
+              );
+            },
+          );
+        });
+  }
+
   Future<void> _showPicker(context) async {
     setState(() {
       loading = true;
@@ -139,13 +191,13 @@ class _ExpiredCalendarState extends State<ExpiredCalendar>
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           TextButton(
-                              onPressed: () async {
-                                await _uploadToFirebase(File(image.path));
+                              onPressed: ()  {
+                                _uploadToFirebase(File(image.path));
                                 Navigator.of(context).pop();
                               },
                               child: Text("저장")),
                           TextButton(
-                              onPressed: () async {
+                              onPressed: ()  {
                                 Navigator.of(context).pop();
                               },
                               child: Text("취소")),
@@ -192,6 +244,7 @@ class _ExpiredCalendarState extends State<ExpiredCalendar>
       });
     }
   }
+
   DateTime parseDate() {
     return DateTime(
         int.parse(yearController.value.text),
@@ -203,7 +256,7 @@ class _ExpiredCalendarState extends State<ExpiredCalendar>
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: Icon(Icons.camera_alt),
         onPressed: () async {
           await _showPicker(context);
         },
@@ -379,8 +432,11 @@ class _ExpiredCalendarState extends State<ExpiredCalendar>
         itemBuilder: (context, index) {
           return Container(
             child: InkWell(
-              onLongPress: () {
-                // _showDelete(context, _selectedEvents[index]);
+              onLongPress: () async {
+                await _showDelete(context, _selectedEvents[index]);
+                setState(() {
+                  loading = false;
+                });
               },
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(

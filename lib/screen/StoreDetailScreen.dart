@@ -25,6 +25,7 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(widget.storeDoc.data()['name']),
       ),
       body: [ExpiredCalendar(widget.storeDoc), Notice(widget.storeDoc)]

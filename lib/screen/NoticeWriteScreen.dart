@@ -130,7 +130,7 @@ class _NoticeWriteScreenState extends State<NoticeWriteScreen> {
           .set({
         "title": titleController.value.text.trim(),
         "content": contentController.value.text.trim(),
-        "editedAt": Timestamp.fromDate(temp),
+        "wroteAt": Timestamp.fromDate(temp),
         "mustRead": mustRead,
         "photoUrls": newUrls,
         "writerRef" : userRef

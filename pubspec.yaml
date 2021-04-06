@@ -46,6 +46,8 @@ dependencies:
 
   expansion_tile_card: ^2.0.0
 
+  toast: ^0.1.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

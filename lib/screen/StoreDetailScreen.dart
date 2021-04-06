@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pyeonpyeon/screen/component/ExpiredCalendar.dart';
 import 'package:pyeonpyeon/screen/component/Notice.dart';
+import 'package:pyeonpyeon/screen/component/Setting.dart';
 
 class StoreDetailScreen extends StatefulWidget {
   StoreDetailScreen(this.storeDoc);
@@ -14,6 +16,9 @@ class StoreDetailScreen extends StatefulWidget {
 
 class _StoreDetailScreenState extends State<StoreDetailScreen> {
   int _selectedIndex = 0;
+  DocumentSnapshot ownerDoc;
+  User user;
+  List<Widget> componentList = [];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -22,14 +27,31 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    user = FirebaseAuth.instance.currentUser;
+
+    componentList.addAll([
+      ExpiredCalendar(widget.storeDoc),
+      Notice(widget.storeDoc),
+    ]);
+    if (widget.storeDoc.data()['ownerRef'].id == user.uid) { //owner
+      componentList.add(Setting(widget.storeDoc));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(widget.storeDoc.data()['name'],style: TextStyle(color: Colors.white),),
+        title: Text(
+          widget.storeDoc.data()['name'],
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(color: Colors.white),
+        ),
       ),
-      body: [ExpiredCalendar(widget.storeDoc), Notice(widget.storeDoc)]
-          .elementAt(_selectedIndex),
+      body: componentList.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -39,6 +61,10 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
             label: 'Notice',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Setting',
           ),
         ],
         currentIndex: _selectedIndex,

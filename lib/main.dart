@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
-import 'package:pyeonpyeon/screen/HomeScreen.dart';
 import 'package:pyeonpyeon/screen/LoginScreen.dart';
 import 'package:pyeonpyeon/provider/AuthProvider.dart';
 import 'package:pyeonpyeon/screen/StoreListScreen.dart';
@@ -36,7 +35,7 @@ class MyApp extends StatelessWidget {
                 title: 'PyeonPyeon',
                 theme: ThemeData(
                   fontFamily: 'NotoSans',
-                  primarySwatch: Colors.blue,
+                  primarySwatch: Colors.teal,
                   primaryColor: mainColor,
                   accentColor: mainColor
                 ),

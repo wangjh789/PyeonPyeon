@@ -63,7 +63,10 @@ class _NoticeState extends State<Notice> {
         },
       ),
       body: StreamBuilder(
-          stream: widget.storeDoc.reference.collection("notice").snapshots(),
+          stream: widget.storeDoc.reference
+              .collection("notice")
+              .orderBy("wroteAt", descending: true)
+              .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Center(

@@ -228,13 +228,17 @@ class _StoreListScreenState extends State<StoreListScreen> {
                       );
                     }
                     return InkWell(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async{
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
                                   StoreDetailScreen(storeList[index])),
-                        );
+                        ).then((result){
+                          if(result == true){
+                            getStores();
+                          }
+                        });
                       },
                       child: Card(
                         child: Padding(

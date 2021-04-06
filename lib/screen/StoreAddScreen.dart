@@ -26,11 +26,9 @@ class _StoreAddScreenState extends State<StoreAddScreen> {
 
   FocusNode nameNode;
   FocusNode searchNode;
-  FocusNode idNode;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController searchController = TextEditingController();
-  TextEditingController idController = TextEditingController();
 
   Future<bool> nameDuplicationCheck() async {
     bool result = true;
@@ -166,28 +164,25 @@ class _StoreAddScreenState extends State<StoreAddScreen> {
         TextField(
             focusNode: searchNode,
             controller: searchController,
-            onSubmitted: (value)  {
+            onSubmitted: (value) {
               getStoreList().then((QuerySnapshot query) {
                 setState(() {
                   searchedStores = query.docs;
                 });
               });
-              if(searchedStores.length ==0){
-                Toast.show("검색 결과가 없습니다.", context);
-              }
             },
             decoration: InputDecoration(
               hintText: "정확한 그룹명을 입력해주세요.",
               hintStyle: TextStyle(fontSize: 15, color: Colors.grey),
               suffixIcon: InkWell(
-                  onTap: ()  {
+                  onTap: () {
                     searchNode.unfocus();
                     getStoreList().then((QuerySnapshot query) {
                       setState(() {
                         searchedStores = query.docs;
                       });
                     });
-                    if(searchedStores.length ==0){
+                    if (searchedStores.length == 0) {
                       Toast.show("검색 결과가 없습니다.", context);
                     }
                   },
@@ -213,7 +208,9 @@ class _StoreAddScreenState extends State<StoreAddScreen> {
                     ),
                   );
                 })
-            : Container()
+            : Center(
+                child: Text("검색 결과가 없습니다."),
+              )
       ];
     }
   }
@@ -226,84 +223,40 @@ class _StoreAddScreenState extends State<StoreAddScreen> {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('그룹 ID를 입력해주세요.'),
-                TextField(
-                  focusNode: idNode,
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 5)),
-                  controller: idController,
-                  onSubmitted: (value)async{
-                    if (storeDoc.data()['id'] ==
-                        idController.value.text.trim()) {
-                      DocumentSnapshot userDoc = await FirebaseFirestore
-                          .instance
-                          .collection("users")
-                          .doc(user.uid)
-                          .get();
-                      if (!userDoc
-                          .data()['storeRefs']
-                          .contains(storeDoc.reference)) {
-                        await FirebaseFirestore.instance
-                            .collection("users")
-                            .doc(user.uid)
-                            .update({
-                          "storeRefs":
-                          FieldValue.arrayUnion([storeDoc.reference])
-                        });
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop(true);
-                        Toast.show("그룹에 합류되었습니다.", context);
-                      } else {
-                        Navigator.pop(context);
-                        Toast.show("이미 합류된 그룹입니다.", context);
-                      }
-                    } else {
-                      Navigator.pop(context);
-                      Toast.show("그룹 ID가 올바르지 않습니다.", context);
-                    }
-                  },
-                ),
+                Text('합류 요청을 전송하시겠습니까?'),
               ],
             ),
             actions: [
               TextButton(
                   onPressed: () async {
-                    idNode.unfocus();
-                    if (storeDoc.data()['id'] ==
-                        idController.value.text.trim()) {
-                      DocumentSnapshot userDoc = await FirebaseFirestore
-                          .instance
-                          .collection("users")
-                          .doc(user.uid)
-                          .get();
-                      if (!userDoc
-                          .data()['storeRefs']
-                          .contains(storeDoc.reference)) {
-                        await FirebaseFirestore.instance
-                            .collection("users")
-                            .doc(user.uid)
-                            .update({
-                          "storeRefs":
-                              FieldValue.arrayUnion([storeDoc.reference])
-                        });
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop(true);
-                        Toast.show("그룹에 합류되었습니다.", context);
-                      } else {
-                        Navigator.pop(context);
-                        Toast.show("이미 합류된 그룹입니다.", context);
-                      }
+                    DateTime requestedAt = DateTime.now();
+                    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+                        .collection("users")
+                        .doc(user.uid)
+                        .get();
+                    if (!userDoc
+                        .data()['storeRefs']
+                        .contains(storeDoc.reference)) {
+                      storeDoc.reference
+                          .collection("request")
+                          .doc(requestedAt.millisecondsSinceEpoch.toString())
+                          .set({
+                        "requestedAt": Timestamp.fromDate(requestedAt),
+                        "userRef": userDoc.reference
+                      });
+                      Toast.show("합류 요청을 전송하였습니다.", context);
                     } else {
-                      Navigator.pop(context);
-                      Toast.show("그룹 ID가 올바르지 않습니다.", context);
+                      Toast.show("이미 합류된 그룹입니다.", context);
                     }
+
+                    Navigator.pop(context);
                   },
-                  child: Text("확인")),
+                  child: Text("예")),
               TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text("취소"))
+                  child: Text("아니오"))
             ],
           );
         });
@@ -316,7 +269,6 @@ class _StoreAddScreenState extends State<StoreAddScreen> {
 
     nameNode = FocusNode();
     searchNode = FocusNode();
-    idNode = FocusNode();
   }
 
   @override
@@ -324,7 +276,6 @@ class _StoreAddScreenState extends State<StoreAddScreen> {
     super.dispose();
     nameNode.dispose();
     searchNode.dispose();
-    idNode.dispose();
   }
 
   @override

@@ -256,7 +256,7 @@ class _ExpiredCalendarState extends State<ExpiredCalendar>
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.camera_alt),
+        child: Icon(Icons.camera_alt,color: Colors.white,),
         onPressed: () async {
           await _showPicker(context);
         },

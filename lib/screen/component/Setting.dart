@@ -17,6 +17,8 @@ class _SettingState extends State<Setting> {
   DateFormat requestFormat = DateFormat('yyyy.MM.dd kk:mm');
 
   TextEditingController nameController = TextEditingController();
+  FocusNode nameNode;
+
   User user;
   List<DocumentSnapshot> memberDocs;
   List<DocumentSnapshot> requestDocs;
@@ -26,7 +28,9 @@ class _SettingState extends State<Setting> {
     super.initState();
     user = FirebaseAuth.instance.currentUser;
     nameController.text = widget.storeDoc.data()['name'];
+    nameNode = FocusNode();
   }
+
 
   Future<QuerySnapshot> getMembers() async {
     return FirebaseFirestore.instance
@@ -69,6 +73,12 @@ class _SettingState extends State<Setting> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    nameNode.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20),
@@ -82,7 +92,14 @@ class _SettingState extends State<Setting> {
             children: [
               Flexible(
                 child: TextField(
+                  focusNode: nameNode,
                   controller: nameController,
+                  onSubmitted: (value)async{
+                    if (nameController.value.text.trim().length > 0)
+                      await widget.storeDoc.reference
+                        .update({"name": nameController.value.text.trim()});
+                    Navigator.of(context).pop(true);
+                  },
                 ),
               ),
               SizedBox(
@@ -116,7 +133,9 @@ class _SettingState extends State<Setting> {
                     child: Text("No Data"),
                   );
                 }
-                memberDocs = snapshot.data.docs;
+                List<DocumentSnapshot> temp = snapshot.data.docs;
+                memberDocs = temp;
+
                 return ListView.builder(
                     physics: NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
@@ -127,11 +146,11 @@ class _SettingState extends State<Setting> {
                       }
                       return ListTile(
                         title: Text(
-                          memberDocs[index].data()['name'],
+                          memberDocs[(index / 2).round()].data()['name'],
                         ),
                         subtitle: Text(
                             memberDocs[(index / 2).round()].data()['email']),
-                        trailing: memberDocs[index].id == user.uid
+                        trailing: memberDocs[(index / 2).round()].id == user.uid
                             ? null
                             : IconButton(
                                 onPressed: () => showFireMember(
@@ -188,7 +207,7 @@ class _SettingState extends State<Setting> {
                                   );
                                 }
                                 DocumentSnapshot userDoc = snapshot.data;
-                                return Row(
+                                return userDoc.exists?Row(
                                   children: [
                                     Flexible(
                                       child: ListTile(
@@ -222,7 +241,6 @@ class _SettingState extends State<Setting> {
                                             "storeRefs": FieldValue.arrayUnion(
                                                 [widget.storeDoc.reference])
                                           });
-                                          memberDocs.add(userDoc);
                                           Toast.show("성공적으로 합류되었습니다.", context);
                                         }else{
                                           Toast.show("이미 합류한 멤버입니다.", context);
@@ -236,6 +254,42 @@ class _SettingState extends State<Setting> {
                                     SizedBox(
                                       width: 10,
                                     ),
+                                    ElevatedButton(
+                                      child: Text("거절"),
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.redAccent, // background
+                                      ),
+                                      onPressed: () {
+                                        requestDocs[(index / 2).round()]
+                                            .reference
+                                            .delete();
+                                        setState(() {
+                                          requestDocs.remove(
+                                              requestDocs[(index / 2).round()]);
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ):
+                                Row(
+                                  children: [
+                                    Flexible(
+                                      child: ListTile(
+                                        title: Text(
+                                          "알수 없음",
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        subtitle: Text(
+                                          requestFormat.format(
+                                              requestDocs[(index / 2).round()]
+                                                  .data()['requestedAt']
+                                                  .toDate()),
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(fontSize: 13),
+                                        ),
+                                      ),
+                                    ),
+
                                     ElevatedButton(
                                       child: Text("거절"),
                                       style: ElevatedButton.styleFrom(

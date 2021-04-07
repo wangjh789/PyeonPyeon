@@ -14,6 +14,8 @@ void main() {
   initializeDateFormatting();
   runApp(MyApp());
 }
+//TODO: 회원탈퇴 , 이메일 로그인
+
 Color mainColor = Color.fromRGBO(96, 172, 188, 1);
 
 CollectionReference userRef = FirebaseFirestore.instance.collection("users");

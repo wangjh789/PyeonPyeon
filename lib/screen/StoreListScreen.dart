@@ -31,10 +31,12 @@ class _StoreListScreenState extends State<StoreListScreen> {
     AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
     DocumentSnapshot documentSnapshot =
         await userRef.doc(auth.getUser().uid).get();
+    print(documentSnapshot.data().toString());
     List storeRefs = documentSnapshot.data()['storeRefs'];
     for (DocumentReference doc in storeRefs) {
       storeList.add(await doc.get());
     }
+
     setState(() {
       loading = false;
     });
@@ -112,19 +114,20 @@ class _StoreListScreenState extends State<StoreListScreen> {
                         children: [
                           RichText(
                             overflow: TextOverflow.ellipsis,
-                            text:TextSpan(
-                            children: <TextSpan>[
-                              TextSpan(
-                                  text: _auth.getUser().displayName,
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 20)),
-                              TextSpan(
-                                  text: '  님',
-                                  style: TextStyle(color: Colors.white)),
-                            ],
-                          ),),
+                            text: TextSpan(
+                              children: <TextSpan>[
+                                TextSpan(
+                                    text: _auth.getUser().displayName,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 20)),
+                                TextSpan(
+                                    text: '  님',
+                                    style: TextStyle(color: Colors.white)),
+                              ],
+                            ),
+                          ),
                           SizedBox(
                             width: 15,
                           ),
@@ -187,6 +190,12 @@ class _StoreListScreenState extends State<StoreListScreen> {
                       });
                 },
               ),
+              ListTile(
+                title: Text("회원탈퇴"),
+                onTap: () async {
+                  await _auth.withDrawUser();
+                },
+              )
             ],
           ),
         ),
@@ -228,14 +237,14 @@ class _StoreListScreenState extends State<StoreListScreen> {
                       );
                     }
                     return InkWell(
-                      onTap: () async{
+                      onTap: () async {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
                                   StoreDetailScreen(storeList[index])),
-                        ).then((result){
-                          if(result == true){
+                        ).then((result) {
+                          if (result == true) {
                             getStores();
                           }
                         });

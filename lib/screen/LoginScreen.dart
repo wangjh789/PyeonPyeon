@@ -16,20 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   AuthProvider _auth;
 
   Future<void> signIn() async {
-    await _auth.googleSingIn().then((User user) async {
-      if (user != null) {
-        DocumentSnapshot userDoc = await userRef.doc(user.uid).get();
-        if (!userDoc.exists) {
-          await userRef.doc(user.uid).set({
-            "uuid": user.uid,
-            "email": user.email,
-            "name": user.displayName,
-            "storeRefs": [],
-            "registerAt": Timestamp.now(),
-          });
-        }
-      }
-    }).catchError((e) {
+    await _auth.googleSingIn().catchError((e) {
       print(e.toString());
     });
   }

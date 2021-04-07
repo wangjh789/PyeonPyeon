@@ -116,9 +116,11 @@ class _NoticeState extends State<Notice> {
                       : FontWeight.normal),
             ),
             subtitle: Text(
-              userDoc.data()['name'] +
-                  '  |  ' +
-                  noticeFormat.format(time.toDate()),
+              userDoc.data() == null
+                  ? "알수없음" + '  |  ' + noticeFormat.format(time.toDate())
+                  : userDoc.data()['name'] +
+                      '  |  ' +
+                      noticeFormat.format(time.toDate()),
               style: TextStyle(fontSize: 10),
             ),
             initialElevation: 1,
@@ -166,7 +168,7 @@ class _NoticeState extends State<Notice> {
                             );
                           }))
                   : Container(),
-              userDoc.id == user.uid
+              (userDoc.id == user.uid) || !userDoc.exists
                   ? ButtonBar(
                       children: [
                         IconButton(

@@ -108,6 +108,9 @@ class _NoticeWriteScreenState extends State<NoticeWriteScreen> {
       String downloadURL = await storageReference.getDownloadURL();
       newUrls.add(downloadURL);
     }
+    User user = FirebaseAuth.instance.currentUser;
+    DocumentReference userRef = FirebaseFirestore.instance.collection("users").doc(user.uid);
+
     if (widget.postingDoc != null) {
       await widget.storeDoc.reference
           .collection("notice")
@@ -117,12 +120,11 @@ class _NoticeWriteScreenState extends State<NoticeWriteScreen> {
         "content": contentController.value.text.trim(),
         "editedAt": Timestamp.fromDate(DateTime.now()),
         "mustRead": mustRead,
-        "photoUrls": oldImg+newUrls
+        "photoUrls": oldImg+newUrls,
+        "writerRef" : userRef
       });
     }
     else{
-      User user = FirebaseAuth.instance.currentUser;
-      DocumentReference userRef = FirebaseFirestore.instance.collection("users").doc(user.uid);
       DateTime temp = DateTime.now();
       await widget.storeDoc.reference
           .collection("notice")

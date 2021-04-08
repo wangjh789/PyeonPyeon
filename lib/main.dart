@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         builder: (context, snapshot){
           if (snapshot.hasError) {
             return Center(
-              child: Text("Someting wrong"),
+              child: Text("Something wrong"),
             );
           }
           if (snapshot.connectionState == ConnectionState.done) {

@@ -4,18 +4,34 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pyeonpyeon/main.dart';
 
-class AuthProvider extends ChangeNotifier{
+class AuthProvider extends ChangeNotifier {
   AuthProvider({auth}) : _auth = auth ?? FirebaseAuth.instance;
 
   FirebaseAuth _auth;
 
-  bool isAuthenticated(){
+  bool isAuthenticated() {
     return _auth.currentUser != null;
   }
 
   User getUser() => _auth.currentUser;
 
-  Future<User> googleSingIn() async{
+  Future<User> emailSignIn(String email, String password) async {
+    UserCredential credential = await _auth
+        .signInWithEmailAndPassword(email: email, password: password);
+
+    User user = credential.user;
+    User currentUser = _auth.currentUser;
+
+    assert(user.uid == currentUser.uid);
+
+    notifyListeners();
+    print('ttt');
+
+    return currentUser;
+
+  }
+
+  Future<User> googleSignIn() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
     User currentUser;
 
@@ -27,13 +43,14 @@ class AuthProvider extends ChangeNotifier{
       idToken: googleAuth.idToken,
     );
 
-    final UserCredential userCredential = await _auth.signInWithCredential(credential);
+    final UserCredential userCredential =
+        await _auth.signInWithCredential(credential);
     final User user = userCredential.user;
 
     assert(!user.isAnonymous);
     assert(await user.getIdToken() != null);
 
-    currentUser =  _auth.currentUser;
+    currentUser = _auth.currentUser;
     assert(user.uid == currentUser.uid);
 
     if (user != null) {
@@ -65,7 +82,7 @@ class AuthProvider extends ChangeNotifier{
     print("User Sign Out");
   }
 
-  Future<void> withDrawUser() async{
+  Future<void> withDrawUser() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
     String uid = _auth.currentUser.uid;
     await googleSignIn.signOut();

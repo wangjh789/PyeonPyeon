@@ -88,6 +88,31 @@ class _StoreListScreenState extends State<StoreListScreen> {
         });
   }
 
+  showWithDraw(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text("정말 탈퇴하시겠습니까?"),
+            actions: [
+              TextButton(
+                child: Text("예"),
+                onPressed: () async{
+                  Navigator.pop(context);
+                  await _auth.withDrawUser();
+                },
+              ),
+              TextButton(
+                child: Text("아니오"),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     _auth = Provider.of<AuthProvider>(context, listen: false);
@@ -192,8 +217,8 @@ class _StoreListScreenState extends State<StoreListScreen> {
               ),
               ListTile(
                 title: Text("회원탈퇴"),
-                onTap: () async {
-                  await _auth.withDrawUser();
+                onTap: ()  {
+                  showWithDraw(context);
                 },
               )
             ],

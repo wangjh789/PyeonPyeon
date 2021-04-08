@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:pyeonpyeon/screen/LoginScreen.dart';
@@ -14,7 +12,6 @@ void main() {
   initializeDateFormatting();
   runApp(MyApp());
 }
-//TODO: 회원탈퇴 , 이메일 로그인
 
 Color mainColor = Color.fromRGBO(96, 172, 188, 1);
 

@@ -35,7 +35,9 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
       ExpiredCalendar(widget.storeDoc),
       Notice(widget.storeDoc),
     ]);
-    if (widget.storeDoc.data()['ownerRef'].id == user.uid) { //owner
+    DocumentReference ownerRef = widget.storeDoc.data()['ownerRef'];
+    if (ownerRef.id == user.uid) {
+      //owner
       componentList.add(Setting(widget.storeDoc));
     }
   }
@@ -52,39 +54,41 @@ class _StoreDetailScreenState extends State<StoreDetailScreen> {
         ),
       ),
       body: componentList.elementAt(_selectedIndex),
-      bottomNavigationBar: widget.storeDoc.data()['ownerRef'].id == user.uid?BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Calendar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notice',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Setting',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped,
-      ):BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Calendar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notice',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped,
-      ),
+      bottomNavigationBar: widget.storeDoc.data()['ownerRef'].id == user.uid
+          ? BottomNavigationBar(
+              items: [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.calendar_today),
+                  label: 'Calendar',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.notifications),
+                  label: 'Notice',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.settings),
+                  label: 'Setting',
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: Colors.amber[800],
+              onTap: _onItemTapped,
+            )
+          : BottomNavigationBar(
+              items: [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.calendar_today),
+                  label: 'Calendar',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.notifications),
+                  label: 'Notice',
+                ),
+              ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: Colors.amber[800],
+              onTap: _onItemTapped,
+            ),
     );
   }
 }

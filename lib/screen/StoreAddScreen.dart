@@ -30,19 +30,6 @@ class _StoreAddScreenState extends State<StoreAddScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController searchController = TextEditingController();
 
-  Future<bool> nameDuplicationCheck() async {
-    bool result = true;
-    await FirebaseFirestore.instance
-        .collection("stores")
-        .where("name", isEqualTo: nameController.value.text.trim())
-        .get()
-        .then((QuerySnapshot query) {
-      if (query.docs.length == 0) {
-        result = false;
-      }
-    });
-    return result;
-  }
 
   Future<void> createNewGroup() async {
     DateTime temp = DateTime.now();
@@ -122,13 +109,9 @@ class _StoreAddScreenState extends State<StoreAddScreen> {
           controller: nameController,
           onSubmitted: (value) async {
             if (nameController.value.text.trim().length != 0) {
-              if (!await nameDuplicationCheck()) {
                 await createNewGroup();
                 Navigator.of(context).pop(true);
                 Toast.show("새 그룹을 생성했습니다.", context);
-              } else {
-                Toast.show("중복된 그룹명입니다.", context);
-              }
             }
           },
         ),
@@ -139,13 +122,9 @@ class _StoreAddScreenState extends State<StoreAddScreen> {
             onPressed: () async {
               nameNode.unfocus();
               if (nameController.value.text.trim().length != 0) {
-                if (!await nameDuplicationCheck()) {
                   await createNewGroup();
                   Navigator.of(context).pop(true);
                   Toast.show("새 그룹을 생성했습니다.", context);
-                } else {
-                  Toast.show("중복된 그룹명입니다.", context);
-                }
               }
             },
             child: Text("그룹 생성하기"))

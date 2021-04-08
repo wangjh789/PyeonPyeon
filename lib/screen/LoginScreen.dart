@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pyeonpyeon/provider/AuthProvider.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:pyeonpyeon/screen/FindPasswordScreen.dart';
 import 'package:pyeonpyeon/screen/SignUpScreen.dart';
+import 'package:toast/toast.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -67,8 +69,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   focusNode: passwordNode,
                   obscureText: true,
                   onSubmitted: (value) async {
-                    await _auth.emailSignIn(emailController.value.text.trim(),
-                        passwordController.value.text.trim());
+                    await _auth
+                        .emailSignIn(emailController.value.text.trim(),
+                            passwordController.value.text.trim())
+                        .catchError((error) {
+                      if(error.code == "invalid-email"){
+                        Toast.show("잘못된 이메일 형식입니다.", context);
+                      }
+                      if(error.code == "user-not-found"){
+                        Toast.show("가입된 이메일이 아닙니다.", context);
+                      }
+                      if(error.code == "wrong-password"){
+                        Toast.show("잘못된 패스워드 입니다.", context);
+                      }
+                    });
                   },
                   decoration: InputDecoration(
                       prefixIcon: Icon(Icons.lock), hintText: "Password"),
@@ -82,19 +96,36 @@ class _LoginScreenState extends State<LoginScreen> {
                               builder: (context) => SignUpScreen()));
                         },
                         child: Text("회원가입")),
-                    Text(" | "),
-                    TextButton(onPressed: null, child: Text("비밀번호 찾기")),
+                    Text("|"),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => FindPasswordScreen()));
+                        },
+                        child: Text("비밀번호 찾기")),
                   ],
                 ),
                 SizedBox(
                   height: 10,
                 ),
                 Container(
-                  width: size.width*0.55,
+                  width: size.width * 0.55,
                   child: ElevatedButton(
                       onPressed: () async {
-                        await _auth.emailSignIn(emailController.value.text.trim(),
-                            passwordController.value.text.trim());
+                        await _auth
+                            .emailSignIn(emailController.value.text.trim(),
+                                passwordController.value.text.trim())
+                            .catchError((error) {
+                          if (error.code == "invalid-email") {
+                            Toast.show("잘못된 이메일 형식입니다.", context);
+                          }
+                          if (error.code == "user-not-found") {
+                            Toast.show("가입된 이메일이 아닙니다.", context);
+                          }
+                          if (error.code == "wrong-password") {
+                            Toast.show("잘못된 패스워드 입니다.", context);
+                          }
+                        });
                       },
                       child: Text("이메일 로그인")),
                 ),
@@ -102,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 30,
                 ),
                 Container(
-                  width: size.width*0.55,
+                  width: size.width * 0.55,
                   child: SignInButton(
                     Buttons.GoogleDark,
                     elevation: 1,

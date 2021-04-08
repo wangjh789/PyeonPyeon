@@ -75,10 +75,9 @@ class _NoticeState extends State<Notice> {
             }
             if (!snapshot.hasData) {
               return Center(
-                child: Text("No Data"),
+                child: CircularProgressIndicator(),
               );
             }
-            print(snapshot.data.docs.length);
             return ListView.builder(
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context, index) {
@@ -101,7 +100,7 @@ class _NoticeState extends State<Notice> {
         }
         if (!snapshot.hasData) {
           return Center(
-            child: Text("No Data"),
+            child: CircularProgressIndicator(),
           );
         }
         DocumentSnapshot userDoc = snapshot.data;

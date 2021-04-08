@@ -31,7 +31,6 @@ class _StoreListScreenState extends State<StoreListScreen> {
     AuthProvider auth = Provider.of<AuthProvider>(context, listen: false);
     DocumentSnapshot documentSnapshot =
         await userRef.doc(auth.getUser().uid).get();
-    print(documentSnapshot.data().toString());
     List storeRefs = documentSnapshot.data()['storeRefs'];
     for (DocumentReference doc in storeRefs) {
       storeList.add(await doc.get());
@@ -97,9 +96,10 @@ class _StoreListScreenState extends State<StoreListScreen> {
             actions: [
               TextButton(
                 child: Text("예"),
-                onPressed: () async{
+                onPressed: () {
                   Navigator.pop(context);
-                  await _auth.withDrawUser();
+                  _auth.withDrawUser();
+                  Toast.show("정상적으로 탈퇴되었습니다.", context);
                 },
               ),
               TextButton(
@@ -203,6 +203,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
                                 onPressed: () {
                                   Navigator.pop(context);
                                   _auth.googleSignOut();
+                                  Toast.show("정상적으로 로그아웃 되었습니다.", context);
                                 },
                                 child: Text("예")),
                             TextButton(

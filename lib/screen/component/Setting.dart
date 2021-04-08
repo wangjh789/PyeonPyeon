@@ -123,7 +123,6 @@ class _SettingState extends State<Setting> {
               future: getMembers(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  print(snapshot.error);
                   return Center(
                     child: Text("Error"),
                   );

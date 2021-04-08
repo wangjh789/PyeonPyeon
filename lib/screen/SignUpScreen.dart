@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pyeonpyeon/widget/loading.dart';
 import 'package:toast/toast.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -21,7 +22,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   FirebaseAuth _auth = FirebaseAuth.instance;
 
-  String errMsg;
+  bool loading = false;
 
   bool validateEmail(String value) {
     Pattern pattern =
@@ -77,128 +78,144 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 30),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              SizedBox(
-                height: 70,
-              ),
-              Text("이름"),
-              TextFormField(
-                controller: nameController,
-                focusNode: nameNode,
-                onFieldSubmitted: (value) {
-                  emailNode.requestFocus();
-                },
-                validator: (value) {
-                  if (value.length < 2) {
-                    return "올바른 이름을 입력해주세요.";
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              Text("이메일"),
-              TextFormField(
-                controller: emailController,
-                focusNode: emailNode,
-                onFieldSubmitted: (value) {
-                  passwordNode.requestFocus();
-                },
-                validator: (value) {
-                  if (value.length < 5) {
-                    return "이메일을 입력해주세요.";
-                  } else if (!validateEmail(value.trim())) {
-                    return "올바른 이메일 형식이 아닙니다.";
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              Text("비밀번호"),
-              TextFormField(
-                controller: passwordController,
-                focusNode: passwordNode,
-                obscureText: true,
-                onFieldSubmitted: (value) {
-                  confirmPasswordNode.requestFocus();
-                },
-                validator: (value) {
-                  if (value.length < 6) {
-                    return "6자 이상의 비밀번호를 입력해주세요.";
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(
-                height: 30,
-              ),
-              Text("비밀번호 확인"),
-              TextFormField(
-                controller: confirmPasswordController,
-                focusNode: confirmPasswordNode,
-                obscureText: true,
-                onFieldSubmitted: (value) async {
-                  confirmPasswordNode.unfocus();
-                  if (_formKey.currentState.validate()) {
-                    if (await emailDuplicationCheck()) {
-                      await emailSignUp(
-                              nameController.value.text.trim(),
-                              emailController.value.text.trim(),
-                              passwordController.value.text.trim())
-                          .then((User user) async {
-                          Navigator.pop(context);
-                          Toast.show("성공적으로 회원가입이 완료되었습니다.", context);
-                      }).catchError((error) {
-                        print("123123" + error.toString());
-                        Toast.show(error.toString(), context);
-                      });
-                    } else {
-                      Toast.show("이미 존재하는 회원입니다.", context);
-                    }
-                  }
-                },
-                validator: (value) {
-                  if (value.trim() != passwordController.value.text.trim()) {
-                    return "비밀번호가 서로 일치하지 않습니다.";
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(
-                height: 70,
-              ),
-              ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState.validate()) {
-                      if (await emailDuplicationCheck()) {
-                        await emailSignUp(
-                                nameController.value.text.trim(),
-                                emailController.value.text.trim(),
-                                passwordController.value.text.trim())
-                            .then((User user) {
-                            Navigator.pop(context);
-                            Toast.show("성공적으로 회원가입이 완료되었습니다.", context);
-                        }).catchError((error) {
-                          print(error.toString());
-                          Toast.show(error.toString(), context);
-                        });
-                      } else {
-                        Toast.show("이미 존재하는 회원입니다.", context);
+      body: Stack(
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 30),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                children: [
+                  SizedBox(
+                    height: 70,
+                  ),
+                  Text("이름"),
+                  TextFormField(
+                    controller: nameController,
+                    focusNode: nameNode,
+                    onFieldSubmitted: (value) {
+                      emailNode.requestFocus();
+                    },
+                    validator: (value) {
+                      if (value.length < 2) {
+                        return "올바른 이름을 입력해주세요.";
                       }
-                    }
-                  },
-                  child: Text("회원가입"))
-            ],
+                      return null;
+                    },
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Text("이메일"),
+                  TextFormField(
+                    controller: emailController,
+                    focusNode: emailNode,
+                    onFieldSubmitted: (value) {
+                      passwordNode.requestFocus();
+                    },
+                    validator: (value) {
+                      if (value.length < 5) {
+                        return "이메일을 입력해주세요.";
+                      } else if (!validateEmail(value.trim())) {
+                        return "올바른 이메일 형식이 아닙니다.";
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Text("비밀번호"),
+                  TextFormField(
+                    controller: passwordController,
+                    focusNode: passwordNode,
+                    obscureText: true,
+                    onFieldSubmitted: (value) {
+                      confirmPasswordNode.requestFocus();
+                    },
+                    validator: (value) {
+                      if (value.length < 6) {
+                        return "6자 이상의 비밀번호를 입력해주세요.";
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Text("비밀번호 확인"),
+                  TextFormField(
+                    controller: confirmPasswordController,
+                    focusNode: confirmPasswordNode,
+                    obscureText: true,
+                    onFieldSubmitted: (value) async {
+                      confirmPasswordNode.unfocus();
+                      if (_formKey.currentState.validate()) {
+                        if (await emailDuplicationCheck()) {
+                          setState(() {
+                            loading = true;
+                          });
+                          await emailSignUp(
+                                  nameController.value.text.trim(),
+                                  emailController.value.text.trim(),
+                                  passwordController.value.text.trim())
+                              .then((User user) async {
+                              Navigator.pop(context);
+                              Toast.show("성공적으로 회원가입이 완료되었습니다.", context);
+                          }).catchError((error) {
+                            Toast.show(error.toString(), context);
+                          });
+                          setState(() {
+                            loading = false;
+                          });
+                        } else {
+                          Toast.show("이미 존재하는 회원입니다.", context);
+                        }
+                      }
+                    },
+                    validator: (value) {
+                      if (value.trim() != passwordController.value.text.trim()) {
+                        return "비밀번호가 서로 일치하지 않습니다.";
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(
+                    height: 70,
+                  ),
+                  ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState.validate()) {
+                          if (await emailDuplicationCheck()) {
+                            setState(() {
+                              loading = true;
+                            });
+                            await emailSignUp(
+                                    nameController.value.text.trim(),
+                                    emailController.value.text.trim(),
+                                    passwordController.value.text.trim())
+                                .then((User user) {
+                                Navigator.pop(context);
+                                Toast.show("성공적으로 회원가입이 완료되었습니다.", context);
+                            }).catchError((error) {
+                              print(error.toString());
+                              Toast.show(error.toString(), context);
+                            });
+                            setState(() {
+                              loading = false;
+                            });
+                          } else {
+                            Toast.show("이미 존재하는 회원입니다.", context);
+                          }
+                        }
+                      },
+                      child: Text("회원가입"))
+                ],
+              ),
+            ),
           ),
-        ),
+          Loading().circularLoading(loading)
+        ],
       ),
     );
   }

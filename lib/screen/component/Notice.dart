@@ -63,7 +63,10 @@ class _NoticeState extends State<Notice> {
         },
       ),
       body: StreamBuilder(
-          stream: widget.storeDoc.reference.collection("notice").snapshots(),
+          stream: widget.storeDoc.reference
+              .collection("notice")
+              .orderBy("wroteAt", descending: true)
+              .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Center(
@@ -72,10 +75,9 @@ class _NoticeState extends State<Notice> {
             }
             if (!snapshot.hasData) {
               return Center(
-                child: Text("No Data"),
+                child: CircularProgressIndicator(),
               );
             }
-            print(snapshot.data.docs.length);
             return ListView.builder(
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context, index) {
@@ -98,7 +100,7 @@ class _NoticeState extends State<Notice> {
         }
         if (!snapshot.hasData) {
           return Center(
-            child: Text("No Data"),
+            child: CircularProgressIndicator(),
           );
         }
         DocumentSnapshot userDoc = snapshot.data;
@@ -113,9 +115,11 @@ class _NoticeState extends State<Notice> {
                       : FontWeight.normal),
             ),
             subtitle: Text(
-              userDoc.data()['name'] +
-                  '  |  ' +
-                  noticeFormat.format(time.toDate()),
+              userDoc.data() == null
+                  ? "알수없음" + '  |  ' + noticeFormat.format(time.toDate())
+                  : userDoc.data()['name'] +
+                      '  |  ' +
+                      noticeFormat.format(time.toDate()),
               style: TextStyle(fontSize: 10),
             ),
             initialElevation: 1,
@@ -163,7 +167,7 @@ class _NoticeState extends State<Notice> {
                             );
                           }))
                   : Container(),
-              userDoc.id == user.uid
+              (userDoc.id == user.uid) || !userDoc.exists
                   ? ButtonBar(
                       children: [
                         IconButton(

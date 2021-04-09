@@ -68,7 +68,7 @@ class _ExpiredCalendarState extends State<ExpiredCalendar>
   }
 
   void _onDaySelected(DateTime day, List events, List holidays) {
-    print('CALLBACK: _onDaySelected');
+    // print('CALLBACK: _onDaySelected');
     setState(() {
       _selectedEvents = events;
     });
@@ -76,12 +76,12 @@ class _ExpiredCalendarState extends State<ExpiredCalendar>
 
   void _onVisibleDaysChanged(
       DateTime first, DateTime last, CalendarFormat format) {
-    print('CALLBACK: _onVisibleDaysChanged');
+    // print('CALLBACK: _onVisibleDaysChanged');
   }
 
   void _onCalendarCreated(
       DateTime first, DateTime last, CalendarFormat format) {
-    print('CALLBACK: _onCalendarCreated');
+    // print('CALLBACK: _onCalendarCreated');
   }
 
   Future<void> _deleteImage(String imgUrl) async {
@@ -256,7 +256,7 @@ class _ExpiredCalendarState extends State<ExpiredCalendar>
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.camera_alt),
+        child: Icon(Icons.camera_alt,color: Colors.white,),
         onPressed: () async {
           await _showPicker(context);
         },
@@ -287,7 +287,8 @@ class _ExpiredCalendarState extends State<ExpiredCalendar>
             );
           }
           if (!snapshot.hasData) {
-            return Center(
+            return Container(
+              margin: EdgeInsets.symmetric(vertical: 300),
               child: CircularProgressIndicator(),
             );
           }

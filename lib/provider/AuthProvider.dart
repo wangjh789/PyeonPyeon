@@ -1,40 +1,75 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pyeonpyeon/main.dart';
 
-class AuthProvider extends ChangeNotifier{
+class AuthProvider extends ChangeNotifier {
   AuthProvider({auth}) : _auth = auth ?? FirebaseAuth.instance;
 
   FirebaseAuth _auth;
 
-  bool isAuthenticated(){
+  bool isAuthenticated() {
     return _auth.currentUser != null;
   }
 
   User getUser() => _auth.currentUser;
 
-  Future<User> googleSingIn() async{
+  Future<User> emailSignIn(String email, String password) async {
+    UserCredential credential = await _auth
+        .signInWithEmailAndPassword(email: email, password: password);
+
+    User user = credential.user;
+    User currentUser = _auth.currentUser;
+
+    assert(user.uid == currentUser.uid);
+
+    notifyListeners();
+    print('ttt');
+
+    return currentUser;
+
+  }
+
+  Future<User> googleSignIn() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
     User currentUser;
 
     final GoogleSignInAccount account = await googleSignIn.signIn();
-    final GoogleSignInAuthentication googleAuth = await account.authentication;
+    if(account != null){
+      final GoogleSignInAuthentication googleAuth = await account.authentication;
 
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
 
-    final UserCredential userCredential = await _auth.signInWithCredential(credential);
-    final User user = userCredential.user;
+      final UserCredential userCredential =
+      await _auth.signInWithCredential(credential);
+      final User user = userCredential.user;
 
-    assert(!user.isAnonymous);
-    assert(await user.getIdToken() != null);
+      assert(!user.isAnonymous);
+      assert(await user.getIdToken() != null);
 
-    currentUser =  _auth.currentUser;
-    assert(user.uid == currentUser.uid);
+      currentUser = _auth.currentUser;
+      assert(user.uid == currentUser.uid);
 
-    notifyListeners();
+      if (user != null) {
+        DocumentSnapshot userDoc = await userRef.doc(user.uid).get();
+        if (!userDoc.exists) {
+          await userRef.doc(user.uid).set({
+            "uuid": user.uid,
+            "email": user.email,
+            "name": user.displayName,
+            "storeRefs": [],
+            "registerAt": Timestamp.now(),
+          });
+        }
+      }
+
+      notifyListeners();
+    }
+
 
     return currentUser;
   }
@@ -48,5 +83,14 @@ class AuthProvider extends ChangeNotifier{
     notifyListeners();
 
     print("User Sign Out");
+  }
+
+  Future<void> withDrawUser() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    String uid = _auth.currentUser.uid;
+    await googleSignIn.signOut();
+    await _auth.currentUser.delete();
+    notifyListeners();
+    await FirebaseFirestore.instance.collection("users").doc(uid).delete();
   }
 }

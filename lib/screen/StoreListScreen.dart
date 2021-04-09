@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:mailto/mailto.dart';
 import 'package:provider/provider.dart';
 import 'package:pyeonpyeon/main.dart';
 import 'package:pyeonpyeon/provider/AuthProvider.dart';
@@ -7,6 +9,7 @@ import 'package:pyeonpyeon/screen/StoreAddScreen.dart';
 import 'package:pyeonpyeon/screen/StoreDetailScreen.dart';
 import 'package:pyeonpyeon/widget/loading.dart';
 import 'package:toast/toast.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class StoreListScreen extends StatefulWidget {
   @override
@@ -19,6 +22,8 @@ class _StoreListScreenState extends State<StoreListScreen> {
   AuthProvider _auth;
 
   TextEditingController nameController = TextEditingController();
+
+  DateFormat listFormat = DateFormat('yyyy.MM.dd');
 
   @override
   void initState() {
@@ -111,6 +116,18 @@ class _StoreListScreenState extends State<StoreListScreen> {
             ],
           );
         });
+  }
+
+  String _url = 'https://github.com/wangjh789/PyeonPyeon';
+  void _launchURL() async =>
+      await canLaunch(_url) ? await launch(_url) : throw 'Could not launch $_url';
+
+  launchMailto() async {
+    final mailtoLink = Mailto(
+      to: ['wangjh789@gmail.com'],
+      subject: 'PyeonPyeon 개발자 피드백',
+    );
+    await launch('$mailtoLink');
   }
 
   @override
@@ -221,6 +238,19 @@ class _StoreListScreenState extends State<StoreListScreen> {
                 onTap: ()  {
                   showWithDraw(context);
                 },
+              ),
+              Divider(),
+              ListTile(
+                title: Text("개발자 피드백"),
+                onTap: ()  async{
+                  await launchMailto();
+                },
+              ),
+              ListTile(
+                title: Text("Github"),
+                onTap: ()  async{
+                  _launchURL();
+                },
               )
             ],
           ),
@@ -286,7 +316,7 @@ class _StoreListScreenState extends State<StoreListScreen> {
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                storeList[index].id,
+                                listFormat.format(storeList[index].data()['createdAt'].toDate()),
                               ),
                             ],
                           ),
